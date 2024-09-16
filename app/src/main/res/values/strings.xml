@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">News App C40 G Sun Wed</string>
+    <string name="each_news_list_image">Each News List Image</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="logo_of_the_app">Logo of the app</string>
+    <string name="signature_of_the_development_of_the_app">signature Of The Development of the app</string>
+    <string name="pick_your_category_of_interest">Pick Your category\n of Interest</string>
+
+    <string name="sports">Sports</string>
+    <string name="technology">Technology</string>
+    <string name="health">Health</string>
+    <string name="business">Business</string>
+    <string name="general">General</string>
+    <string name="science">Science</string>
+    <string name="category_image">Category Image</string>
+    <string name="navigation_icon">navigation Icon</string>
+    <string name="news_app">News App</string>
+</resources>
