@@ -7,11 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.toRoute
-import com.route.newsappc40gsunwed.NewsScreenContent
 import com.route.newsappc40gsunwed.Routes
-import com.route.newsappc40gsunwed.api.model.Category
 import com.route.newsappc40gsunwed.composables.CategoriesScreenContent
+import com.route.newsappc40gsunwed.composables.news.NewsScreenContent
 
 @Composable
 fun NewsNavigationComponent(modifier: Modifier = Modifier) {

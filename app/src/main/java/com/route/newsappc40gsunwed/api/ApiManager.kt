@@ -25,6 +25,7 @@ object ApiManager {
 
     private fun provideOkHttpClient(): OkHttpClient {
         val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(AuthApiKeyInterceptor())
             .addInterceptor(provideHttpLoggingInterceptor())
             .build()
         return okHttpClient

@@ -20,6 +20,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,12 +45,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.route.newsappc40gsunwed.api.ApiManager
+import com.route.newsappc40gsunwed.api.handleError
 import com.route.newsappc40gsunwed.api.model.ArticlesItem
 import com.route.newsappc40gsunwed.api.model.Category
 import com.route.newsappc40gsunwed.api.model.NewsResponse
 import com.route.newsappc40gsunwed.api.model.SourcesItem
 import com.route.newsappc40gsunwed.api.model.SourcesResponse
 import com.route.newsappc40gsunwed.ui.theme.NewsAppC40GSunWedTheme
+import com.route.newsappc40gsunwed.utils.ErrorDialog
 import com.route.newsappc40gsunwed.utils.NewsCard
 import com.route.newsappc40gsunwed.utils.NewsNavigationComponent
 import com.route.newsappc40gsunwed.utils.NewsScrollableTabRow
@@ -60,7 +63,9 @@ import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
     // Create a new Project -> News App (APIs + Networking )
-
+    // 1- Handling Error API
+    // 2- Interceptor -> API Key  ( Http Logging Interceptor )
+    // 3 - MVVM UI Architecture Pattern
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -79,91 +84,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun NewsScreenContent(categoryId: String, modifier: Modifier = Modifier) {
-    val sourcesList = remember {
-        mutableStateListOf<SourcesItem>()
-    }
-    var selectedSourceId by remember {
-        mutableStateOf("")
-    }
-    LaunchedEffect(Unit) {
-        // Background Thread -> Callbacks
-//            .execute() // Main Thread (UI Thread)
-        getSources(categoryId, sourcesList)
-    }
-    Column {
-        NewsScrollableTabRow(sourcesList = sourcesList, onSourceChangedListener = { sourceId ->
-            selectedSourceId = sourceId
-        })
-        if (selectedSourceId.isNotEmpty())
-            NewsLazyColumn(selectedSourceId = selectedSourceId)
-    }
-
-}
-
-fun getNewsBySource() {
-
-}
-
-
-fun getSources(categoryId: String, sourcesList: SnapshotStateList<SourcesItem>) {
-    ApiManager.getNewsService().getSources(categoryId)
-        .enqueue(object : Callback<SourcesResponse> {
-            override fun onResponse(
-                call: Call<SourcesResponse>,
-                response: Response<SourcesResponse>
-            ) {
-                val responseBody = response.body()
-                if (responseBody?.sources?.isNotEmpty() == true) {
-                    sourcesList.addAll(responseBody.sources)
-                }
-            }
-
-            override fun onFailure(call: Call<SourcesResponse>, t: Throwable) {
-
-            }
-
-        })
-}
-
-
-@Composable
-fun NewsLazyColumn(selectedSourceId: String, modifier: Modifier = Modifier) {
-    val articlesList = remember {
-        mutableStateListOf<ArticlesItem>()
-    }
-    LaunchedEffect(Unit) {
-        ApiManager.getNewsService().getNewsBySource(selectedSourceId)
-            .enqueue(object : Callback<NewsResponse> {
-                override fun onResponse(
-                    call: Call<NewsResponse>,
-                    response: Response<NewsResponse>
-                ) {
-                    val responseBody = response.body()
-                    if (responseBody?.articles?.isNotEmpty() == true) {
-                        articlesList.clear()
-                        articlesList.addAll(responseBody.articles)
-                    }
-
-                }
-
-                override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
-
-                }
-            })
-    }
-    LazyColumn(modifier) {
-        items(articlesList) { articleItem ->
-            NewsCard(articlesItem = articleItem)
-        }
-    }
-}
-
-
-@Preview
-@Composable
-private fun NewsScreenContentPreview() {
-
-}

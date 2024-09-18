@@ -11,12 +11,10 @@ interface NewsService {
     @GET("top-headlines/sources")
     fun getSources(
         @Query("category") categoryId: String,
-        @Query("apiKey") serverApiKey: String = "8e30e66ecc364d75967401f639e6f535"
     ): Call<SourcesResponse>
 
     @GET("everything")
     fun getNewsBySource(
         @Query("sources") selectedSourceId: String,
-        @Query("apiKey") serverApiKey: String = "8e30e66ecc364d75967401f639e6f535"
     ): Call<NewsResponse>
 }

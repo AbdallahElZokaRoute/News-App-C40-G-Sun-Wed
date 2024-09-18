@@ -8,6 +8,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -17,14 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.route.newsappc40gsunwed.Colors
-import com.route.newsappc40gsunwed.api.model.SourcesItem
+import com.route.newsappc40gsunwed.composables.news.NewsViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun NewsScrollableTabRow(
-    sourcesList: List<SourcesItem>,
-    onSourceChangedListener: (sourceId: String) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun NewsScrollableTabRow(viewModel: NewsViewModel = viewModel()) {
     var selectedTabIndex by remember {
         mutableIntStateOf(0)
     }
@@ -37,16 +35,21 @@ fun NewsScrollableTabRow(
             .padding(4.dp)
             .border(2.dp, Colors.green, CircleShape)
             .padding(horizontal = 8.dp, vertical = 6.dp)
+    LaunchedEffect(Unit) {
+        viewModel.selectedSourceId.value = if (viewModel.sourcesList.isNotEmpty())
+            viewModel.sourcesList.get(0).id ?: ""
+        else ""
+    }
     ScrollableTabRow(
         selectedTabIndex = selectedTabIndex,
         indicator = {},
         divider = {},
         edgePadding = 0.dp
     ) {
-        sourcesList.forEachIndexed { index, sourcesItem ->
+        viewModel.sourcesList.forEachIndexed { index, sourcesItem ->
             Tab(
                 selected = selectedTabIndex == index, onClick = {
-                    onSourceChangedListener(sourcesItem.id ?: "")
+                    viewModel.selectedSourceId.value = sourcesItem.id ?: ""
                     selectedTabIndex = index
                 }, modifier = if (selectedTabIndex == index) selectedModifier
                 else unSelectedModifier
@@ -65,10 +68,4 @@ fun NewsScrollableTabRow(
 @Preview
 @Composable
 private fun NewsScrollableTabRowPreview() {
-    NewsScrollableTabRow(
-        listOf(
-            SourcesItem(name = "ABC News"),
-            SourcesItem(name = "Al-Jazeera News")
-        ), onSourceChangedListener = {}
-    )
 }
