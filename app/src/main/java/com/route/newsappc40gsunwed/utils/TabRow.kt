@@ -17,12 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.route.newsappc40gsunwed.Colors
 import com.route.newsappc40gsunwed.composables.news.NewsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun NewsScrollableTabRow(viewModel: NewsViewModel = viewModel()) {
+fun NewsScrollableTabRow(viewModel: NewsViewModel = hiltViewModel()) {
     var selectedTabIndex by remember {
         mutableIntStateOf(0)
     }

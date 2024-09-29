@@ -4,18 +4,28 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.route.newsappc40gsunwed.R
 import com.route.newsappc40gsunwed.api.ApiManager
+import com.route.newsappc40gsunwed.api.NewsService
 import com.route.newsappc40gsunwed.api.handleError
 import com.route.newsappc40gsunwed.api.model.ArticlesItem
 import com.route.newsappc40gsunwed.api.model.NewsResponse
 import com.route.newsappc40gsunwed.api.model.SourcesItem
 import com.route.newsappc40gsunwed.api.model.SourcesResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.Retrofit
+import javax.inject.Inject
 
-class NewsViewModel : ViewModel() {
+@HiltViewModel
+class NewsViewModel @Inject constructor(
+    private val newsService: NewsService,
+) : ViewModel() {
     //  Lifecycle-Aware
     val selectedSourceId = mutableStateOf("")
     val articlesList = mutableStateListOf<ArticlesItem>()
@@ -26,53 +36,43 @@ class NewsViewModel : ViewModel() {
     fun getSources(
         categoryId: String,
     ) {
-        ApiManager.getNewsService().getSources(categoryId)
-            .enqueue(object : Callback<SourcesResponse> {
-                override fun onResponse(
-                    call: Call<SourcesResponse>,
-                    response: Response<SourcesResponse>
-                ) {
-                    isLoading.value = false
-                    if (response.isSuccessful) {
-                        val responseBody = response.body()
-                        if (responseBody?.sources?.isNotEmpty() == true) {
-                            sourcesList.addAll(responseBody.sources)
-                        }
-                    } else {
-                        // Handle error
-                        errorMessage.intValue = handleError(response)
+        viewModelScope.launch(context = Dispatchers.IO) {
+            try {
+                val response = newsService.getSources(categoryId)
+                isLoading.value = false
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody?.sources?.isNotEmpty() == true) {
+                        sourcesList.addAll(responseBody.sources)
                     }
+                } else {
+                    // Handle error
+                    errorMessage.intValue = handleError(response)
                 }
-
-                override fun onFailure(call: Call<SourcesResponse>, t: Throwable) {
-                    isLoading.value = false
-                    errorMessage.intValue = handleError(t)
-                }
-            })
+            } catch (e: Exception) {
+                isLoading.value = false
+                errorMessage.intValue = handleError(e)
+            }
+        }
     }
 
     fun getNewsBySource() {
-        ApiManager.getNewsService().getNewsBySource(selectedSourceId.value)
-            .enqueue(object : Callback<NewsResponse> {
-                override fun onResponse(
-                    call: Call<NewsResponse>,
-                    response: Response<NewsResponse>
-                ) {
-                    val responseBody = response.body()
-                    if (response.isSuccessful) {
-                        if (responseBody?.articles?.isNotEmpty() == true) {
-                            articlesList.clear()
-                            articlesList.addAll(responseBody.articles)
-                        }
-                    } else {
-                        errorMessage.intValue = handleError(response)
+        viewModelScope.launch(context = Dispatchers.IO) {
+            try {
+                val response = newsService.getNewsBySource(selectedSourceId.value)
+                val responseBody = response.body()
+                if (response.isSuccessful) {
+                    if (responseBody?.articles?.isNotEmpty() == true) {
+                        articlesList.clear()
+                        articlesList.addAll(responseBody.articles)
                     }
-
+                } else {
+                    errorMessage.intValue = handleError(response)
                 }
-
-                override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
-                    errorMessage.intValue = handleError(t)
-                }
-            })
+            } catch (e: Exception) {
+                isLoading.value = false
+                errorMessage.intValue = handleError(e)
+            }
+        }
     }
 }

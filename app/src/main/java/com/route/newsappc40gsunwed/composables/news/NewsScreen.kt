@@ -11,17 +11,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.route.newsappc40gsunwed.Colors
 import com.route.newsappc40gsunwed.utils.ErrorDialog
 import com.route.newsappc40gsunwed.utils.NewsCard
 import com.route.newsappc40gsunwed.utils.NewsScrollableTabRow
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+// SOLID Design Principles -> 'D'ependency Inversion Principle
+// Dependency Injection using Dagger Hilt
+// Kotlin Coroutines
 @Composable
 fun NewsScreenContent(
     categoryId: String,
     modifier: Modifier = Modifier,
-    viewModel: NewsViewModel = viewModel()
+    viewModel: NewsViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         // Background Thread -> Callbacks
@@ -50,7 +54,7 @@ fun NewsScreenContent(
 @Composable
 fun NewsLazyColumn(
     modifier: Modifier = Modifier,
-    viewModel: NewsViewModel = viewModel()
+    viewModel: NewsViewModel = hiltViewModel()
 ) {
 
     LaunchedEffect(viewModel.selectedSourceId.value) {
